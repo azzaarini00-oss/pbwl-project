@@ -3,52 +3,50 @@
 require_once "inc/Koneksi.php";
 require_once "app/Dosen.php";
 
-$dosen = new App\Dosen();
-$rows = $dosen->index();
+$model = new App\Dosen();
+$rows = $model->index();
 
 ?>
 
-<div class="row">
-    <div class="col-md-12">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="fw-bold m-0">Dosen</h2>
+    <a href="index.php?page=dosen_input" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Input Dosen Baru</a>
+</div>
 
-        <h2 class="fw-bold mb-3">Dosen</h2>
-
-        <a href="index.php?page=dosen_input" class="btn btn-primary mb-2 mb-3">Input Dosen Baru</a>
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>No</th>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle bg-white">
+        <thead class="table-light">
+            <tr>
+                <th style="width:60px">No</th>
                     <th>NIP</th>
                     <th>Nama</th>
                     <th>Jabatan</th>
                     <th>Golongan</th>
-                    <th></th>
+                <th style="width:170px" class="text-center">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (count($rows) === 0) { ?>
+                <tr><td colspan="6" class="text-center text-muted py-4">Belum ada data.</td></tr>
+            <?php } ?>
+            <?php $no = 1; foreach ($rows as $row) { ?>
+                <tr>
+                    <td><?php echo $no++; ?></td>
+                        <td><?php echo htmlspecialchars((string) ($row['dosen_nip'] ?? '')); ?></td>
+                        <td><?php echo htmlspecialchars((string) ($row['dosen_nama'] ?? '')); ?></td>
+                        <td><?php echo htmlspecialchars((string) ($row['dosen_jabatan'] ?? '')); ?></td>
+                        <td><?php echo htmlspecialchars((string) ($row['dosen_golongan'] ?? '')); ?></td>
+                    <td class="text-center">
+                        <a href="index.php?page=dosen_edit&id=<?php echo (int) $row['dosen_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="dosen_proses.php?action=delete" method="post" class="d-inline"
+                              onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                            <?php echo App\Koneksi::csrfField(); ?>
+                            <input type="hidden" name="id" value="<?php echo (int) $row['dosen_id']; ?>">
+                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                        </form>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php
-                $no = 1;
-                foreach ($rows as $row) {
-                ?>
-                    <tr>
-                        <td><?php echo $no++; ?></td>
-                        <td><?php echo htmlspecialchars($row['dosen_nip']); ?></td>
-                        <td><?php echo htmlspecialchars($row['dosen_nama']); ?></td>
-                        <td><?php echo htmlspecialchars($row['dosen_jabatan'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($row['dosen_golongan'] ?? ''); ?></td>
-                        <td>
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="index.php?page=dosen_edit&id=<?php echo $row['dosen_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="dosen_proses.php?action=delete&id=<?php echo $row['dosen_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus data?')">Hapus</a>
-                            </div>
-                        </td>
-                    </tr>
-                <?php
-                }
-                ?>
-            </tbody>
-        </table>
-
-    </div>
+            <?php } ?>
+        </tbody>
+    </table>
 </div>

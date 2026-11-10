@@ -3,33 +3,31 @@
 require_once "inc/Koneksi.php";
 require_once "app/Mahasiswa.php";
 
-$mhsw = new App\Mahasiswa();
+use App\Koneksi;
 
+$model = new App\Mahasiswa();
 $action = $_GET['action'] ?? '';
+$back = "Location: index.php?page=mhsw";
 
-switch ($action) {
-    case 'store':
-        if (isset($_POST['store'])) {
-            $mhsw->store();
-        }
-        break;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && Koneksi::checkCsrf()) {
+    switch ($action) {
+        case 'store':
+            if (!$model->store()) {
+                $back = "Location: index.php?page=mhsw_input";
+            }
+            break;
 
-    case 'update':
-        if (isset($_POST['update'])) {
-            $mhsw->update();
-        }
-        break;
+        case 'update':
+            if (!$model->update()) {
+                $back = "Location: index.php?page=mhsw_edit&id=" . (int) ($_POST['mhsw_id'] ?? 0);
+            }
+            break;
 
-    case 'delete':
-        if (isset($_GET['id'])) {
-            $mhsw->delete($_GET['id']);
-        }
-        break;
-
-    default:
-        header("Location: index.php?page=mhsw");
-        break;
+        case 'delete':
+            $model->delete($_POST['id'] ?? 0);
+            break;
+    }
 }
 
-header("Location: index.php?page=mhsw");
+header($back);
 exit;
